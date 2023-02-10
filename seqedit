@@ -1,0 +1,105 @@
+#!/usr/bin/python3
+
+import sys
+import os
+import re
+from Bio import SeqIO
+from Bio.Seq import Seq
+
+# command verification 
+args = sys.argv
+
+if len(args) !=3:
+    sys.exit("\nError\nUsage: python3 [program].py [option] [input file name]\n\nOptions\n    -t: Sequence trimming mode\n    -c: Strand conversion mode\n")
+elif args[1] != "-t" and args[1] != "-c":
+    sys.exit("\nError\nOption must correctly be specified.\n    -t: Sequence trimming mode\n    -c: Strand conversion mode\nUsage: python3 [program].py [option] [input file name]\n")
+
+# initial parameters
+file_input = args[2]
+file_prefix_init = os.path.splitext(os.path.basename(file_input))[0]
+file_conversion = '0'
+path_input = os.getcwd()
+
+# start editing
+if args[1] == "-t":
+    print("\r\nStart interactive sequence trimming.\r\n")
+elif args[1] == "-c":
+    print("\r\nStart interactive reverse complement conversion.\r\n")
+
+with open(file_input, "r", encoding="utf-8") as f1:
+    for record in SeqIO.parse(f1, "fasta"):
+        identifier = record.id
+        sequence = record.seq
+        if args[1] == "-t":
+            output_file1 = file_prefix_init + '_trim.fasta'
+            output_log1 = file_prefix_init + '_trim.log'
+            simple_trim_log1 = file_prefix_init + '_simple_trim.log'
+            print("\r\nTrimming for " + identifier)
+            print("\r\nInput length: " + str(len(sequence)))
+            while(1):
+                val1 = input('\r\nEnter start number (No value will set the number to 1.): ')
+                if val1.isdecimal():
+                    val1 = val1
+                    break
+                elif val1 == "":
+                    val1 = "1"
+                    break
+            while(1):
+                val2 = input('\r\nEnter end number (No value will skip trimming.): ')
+                if val2.isdecimal():
+                    val2 = val2
+                    break
+                elif val2 == "":
+                    val2 = val2 
+                    break
+            if val2 == "":
+                print("\r\nNo trimming will be applied.\r\n")
+                with open(output_log1, "a", encoding="utf-8") as f2:
+                    f2.write(identifier + "\r\n")
+                    f2.write("Submitted seq. length: " + str(len(sequence)) + "\r\n")
+                    f2.write("No trimming applied.\r\n//\r\n")
+                with open(simple_trim_log1, "a", encoding="utf-8") as f3:
+                    f3.write(identifier + ": No trimming applied.\r\n")
+                continue
+            print("\r\n>" + identifier)
+            print(sequence[(int(val1)-1):int(val2)])
+            print("\r\nShowing range: " + val1 + " to " + val2)
+            with open(output_file1, "a", encoding="utf-8") as f4:
+                f4.write('>')
+                f4.writelines(identifier + "\r\n")
+                f4.writelines(sequence[(int(val1)-1):int(val2)] + "\r\n//\r\n")
+            with open(output_log1, "a", encoding="utf-8") as f5:
+                f5.write(identifier + "\r\n")
+                f5.write("Submitted seq. length: " + str(len(sequence)) + "\r\n")
+                f5.write("Accepted range: " + val1 + " to " + val2 + "\r\n//\r\n")
+            with open(simple_trim_log1, "a", encoding="utf-8") as f6:
+                f6.write(identifier + ": " + val1 + " - " + val2 + " (length changed from " + str(len(sequence)) + " bp ---> " + str(int(val2) - int(val1) + 1) + " bp)\r\n")
+        elif args[1] == "-c":
+            output_file2 = file_prefix_init + '_revcomp.fasta'
+            output_log2 = file_prefix_init + '_revcomp.log'
+            simple_revcomp_log2 = file_prefix_init + '_simple_revcomp.log'            
+            print("\r\nConversion for " + identifier)
+            while(1):
+                val1 = input('\r\nEnter y/n (No value will keep strand as is.): ')
+                if val1 == "y" or val1 == "n" or val1 == "":
+                    val1 = val1
+                    break
+            if val1 == "n" or val1 == "":
+                with open(output_log2, "a", encoding="utf-8") as f2:
+                    f2.write(identifier + "\r\n")
+                    f2.write("Reverse complement conversion not applied.\r\n//\r\n")
+                with open(simple_revcomp_log2, "a", encoding="utf-8") as f3:
+                    f3.write(identifier + ": Not applied\r\n")
+            elif val1 == "y":
+                sequence = sequence.reverse_complement()
+                with open(output_file2, "a", encoding="utf-8") as f4:
+                    f4.write('>')
+                    f4.writelines(identifier + "\r\n")
+                    f4.writelines(sequence + "\r\n//\r\n")
+                with open(output_log2, "a", encoding="utf-8") as f5:
+                    f5.write(identifier + "\r\n")
+                    f5.write("Reverse complement conversion applied.\r\n//\r\n")
+                with open(simple_revcomp_log2, "a", encoding="utf-8") as f6:
+                    f6.write(identifier + ": Applied\r\n")
+
+print("\r\nEnd program.\r\n")
