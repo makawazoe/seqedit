@@ -48,7 +48,7 @@ with open(file_input, "r", encoding="utf-8") as f1:
                     break
             while(1):
                 val2 = input('\r\nEnter end number (No value will skip trimming.): ')
-                if val2.isdecimal():
+                if val2.isdecimal() and int(val2) <= len(sequence):
                     val2 = val2
                     break
                 elif val2 == "":
