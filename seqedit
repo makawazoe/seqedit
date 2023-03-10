@@ -40,20 +40,17 @@ with open(file_input, "r", encoding="utf-8") as f1:
             print("\r\nInput length: " + str(len(sequence)))
             while(1):
                 val1 = input('\r\nEnter start number (No value will set the number to 1.): ')
-                if val1.isdecimal():
-                    val1 = val1
-                    break
-                elif val1 == "":
-                    val1 = "1"
-                    break
-            while(1):
                 val2 = input('\r\nEnter end number (No value will skip trimming.): ')
-                if val2.isdecimal() and int(val2) <= len(sequence):
+                if val2 == "":
+                    break
+                if val1 =="":
+                    val1 = "1"
+                if val1.isdecimal() and int(val1) < len(sequence) and val2.isdecimal() and int(val2) <= len(sequence) and 100 <= (int(val2) - int(val1) + 1):
+                    val1 = val1
                     val2 = val2
                     break
-                elif val2 == "":
-                    val2 = val2 
-                    break
+                else:
+                    print('\r\nNumbers you specified contain some critical error. Please provide again.\r\n')
             if val2 == "":
                 print("\r\nNo trimming will be applied.\r\n")
                 with open(output_log1, "a", encoding="utf-8") as f2:
@@ -79,7 +76,7 @@ with open(file_input, "r", encoding="utf-8") as f1:
         elif args[1] == "-c":
             output_file2 = file_prefix_init + '_revcomp.fasta'
             output_log2 = file_prefix_init + '_revcomp.log'
-            simple_revcomp_log2 = file_prefix_init + '_simple_revcomp.log'            
+            simple_revcomp_log2 = file_prefix_init + '_simple_revcomp.log'
             print("\r\nConversion for " + identifier)
             while(1):
                 val1 = input('\r\nEnter y/n (No value will keep strand as is.): ')
